@@ -4,7 +4,7 @@ import openai
 import os
 
 gpt_model = "gpt-4o-mini"
-openai.api_key = os.getenv("openai_key_2")
+openai.api_key = os.getenv("openai_key")
 
 def aplicar_prompt(texto, prompt):
     """

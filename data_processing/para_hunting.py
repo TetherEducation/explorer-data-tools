@@ -1,6 +1,5 @@
 import pandas as pd
 from utils.db_connection import conect_bd
-from utils.open_ai_api import aplicar_prompt
 
 
 ###Setear variables###
