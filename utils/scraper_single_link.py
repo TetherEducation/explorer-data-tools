@@ -26,6 +26,6 @@ def extract_text(url):
         print(f"Error al extraer texto de {url}: {e}")
         return ""
 
-page_text = extract_text("https://www.mineducacion.gov.co/portal/micrositios-superior/Becas-SER/")
-cleaned_page_text = clean_text(page_text)
-print(cleaned_page_text)
+# page_text = extract_text("https://www.mineducacion.gov.co/portal/micrositios-superior/Becas-SER/")
+# cleaned_page_text = clean_text(page_text)
+# print(cleaned_page_text)

@@ -4,11 +4,10 @@ from utils.open_ai_api import aplicar_prompt
 
 
 ###Setear variables###
-input_pat = "/Users/leidygomez/ConsiliumBots Dropbox/Leidy Gomez/Explorador_CB/Explorador_Chile/E_Escolar/outputs/update/2025_01_20/"
-output_path = '/Users/leidygomez/ConsiliumBots Dropbox/Leidy Gomez/Explorador_CB/Explorador_Chile/E_Escolar/outputs/update/2025_01_20/'
+output_path = '/Users/leidygomez/ConsiliumBots Dropbox/Leidy Gomez/Explorador_CB/Explorador_Copenhague/Outputs/'
 
-environment = 'production' #staging production
-tenant = 'chile'
+environment = 'staging' #staging production
+tenant = 'dnk'
 
 ######################
 
@@ -42,9 +41,9 @@ df = pd.merge(df, campuses, on='campus_code', how='left')
 consulta = f'''
     WITH config AS (
         SELECT
-            'Provincia' AS geo_subd_mayor_label,
-            'Comuna' AS geo_subd_menor_label,
-            'Chile' AS pais
+            'Region' AS geo_subd_mayor_label,
+            'Kommune' AS geo_subd_menor_label,
+            'dnk' AS pais
     ),
     location AS (
         SELECT campus_code, latitud, longitud, address_street, plocation_id
@@ -77,22 +76,43 @@ df = df.fillna("")
 conn_core.close()
 
 
+#En español
+# for index, row in df.iterrows():   
+#     parte1 = f"Explora el perfil digital de {row['campus_name']}"
+#     if row['sector_name']!='' and row['sector_name']!="Sin Información":
+#         parte2 = f" de caracter {row['sector_name']}"
+#     else: 
+#         parte2 = ""
+#     if row['geo_subd_menor_label']!='':
+#         parte3 = f" ubicado en la comuna {row['geo_subd_menor_label']}"
+#     else: 
+#         parte3 = ""
+#     if parte2=="" and parte3=="":
+#         parte4 = ". Facilitamos la búsqueda de colegios ideales."
+#     else:
+#         parte4 = ""
+    
+#     df.at[index, 'description'] = parte1 + parte2 + parte3 + parte4
+
+
+#En ingles
 for index, row in df.iterrows():   
-    parte1 = f"Explora el perfil digital de {row['campus_name']}"
+    parte1 = f"Explore the digital profile of {row['campus_name']}"
     if row['sector_name']!='' and row['sector_name']!="Sin Información":
-        parte2 = f" de caracter {row['sector_name']}"
+        parte2 = f" owner type {row['sector_name']}"
     else: 
         parte2 = ""
     if row['geo_subd_menor_label']!='':
-        parte3 = f" ubicado en la comuna {row['geo_subd_menor_label']}"
+        parte3 = f" located in {row['geo_subd_menor_label']}"
     else: 
         parte3 = ""
     if parte2=="" and parte3=="":
-        parte4 = ". Facilitamos la búsqueda de colegios ideales."
+        parte4 = ". We make it easy to find the ideal school."
     else:
         parte4 = ""
     
     df.at[index, 'description'] = parte1 + parte2 + parte3 + parte4
+
 
 df = df[['campus_code', 'description']]
 df.to_csv(output_path + 'summary_short_noAI.csv', sep=';', index=False)
