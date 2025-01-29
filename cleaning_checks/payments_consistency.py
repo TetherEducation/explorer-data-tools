@@ -10,22 +10,18 @@
 ############################################
 
 ###### Paths
-# Path to credentials file
-cred_path = '/Users/ignaciolepe/ConsiliumBots Dropbox/Ignacio Lepe/credentials.csv'
 # Data path
 data_path = '/Users/ignaciolepe/Documents/duplicates_check/data'
 ######
 
 ###### Packages
+import sys
 import os
 import pandas as pd
-from import_from_back import load_credentials, import_back_tables
-######
-
-###### Load credentials
-credentials = load_credentials(cred_path)
-
-###### Function to check variable consistency across institutions_payment and institutions_payments_v2
+# Add the project root directory to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from utils.db_connection import conect_bd
+###### 
 
 ###### Mapping
 category_to_band_mapping = {
@@ -37,7 +33,28 @@ category_to_band_mapping = {
     6: 4   # "Más de $100.000" -> "Más de $100.000"
 }
 
-def check_payments_consistency(country, table1, table2, credentials, environment="staging"):
+###### Function to fetch data from the database
+def fetch_table_data(conn, table_name):
+    """
+    Fetches all records from a given table in the database.
+
+    Args:
+        conn (psycopg2 connection): Active database connection.
+        table_name (str): Table to fetch.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the table data.
+    """
+    try:
+        query = f"SELECT * FROM {table_name};"
+        df = pd.read_sql_query(query, conn)
+        return df
+    except Exception as e:
+        print(f"Error fetching data from {table_name}: {e}")
+        return None
+
+###### Function to check payments consistency
+def check_payments_consistency(country, table1, table2, conn, environment="staging"):
     """
     Checks consistency between institutions_payment and institutions_payments_v2.
 
@@ -48,7 +65,7 @@ def check_payments_consistency(country, table1, table2, credentials, environment
         country (str): The country to select the tables from.
         table1 (str): The name of the first table (institutions_payment).
         table2 (str): The name of the second table (institutions_payments_v2).
-        credentials (dict): Database credentials.
+        conn (psycopg2 connection): Active database connection.
         environment (str): The backend environment ('staging' or 'production').
 
     Returns:
@@ -57,12 +74,12 @@ def check_payments_consistency(country, table1, table2, credentials, environment
     print(f"\nProcessing consistency check for {table1} and {table2} ({country})")
 
     try:
-        # Import the tables
-        df1 = import_back_tables(f"{country}.{table1}", credentials, environment)
-        df2 = import_back_tables(f"{country}.{table2}", credentials, environment)
+        # Fetch table data
+        df1 = fetch_table_data(conn, f"{country}.{table1}")
+        df2 = fetch_table_data(conn, f"{country}.{table2}")
         
         if df1 is None or df2 is None:
-            print(f"Failed to import one or both tables: {table1}, {table2}")
+            print(f"Failed to fetch one or both tables: {table1}, {table2}")
             return
 
         # Debug: Print column names
@@ -143,7 +160,14 @@ def check_payments_consistency(country, table1, table2, credentials, environment
 # Parameters
 country = "chile"
 
-# Table 1: institutions_payments
+# Connect to databases
+environment_staging = 'staging'
+environment_production = 'production'
+
+conn_staging = conect_bd('core', environment_staging)
+conn_production = conect_bd('core', environment_production)
+
+# Table 1: institutions_payment
 table1 = "institutions_payment"
 
 # Table 2: institutions_payments_v2
@@ -154,7 +178,7 @@ check_payments_consistency(
     country=country,
     table1=table1,
     table2=table2,
-    credentials=credentials,
+    conn=conn_staging,
     environment="staging"
 )
 
@@ -163,6 +187,10 @@ check_payments_consistency(
     country=country,
     table1=table1,
     table2=table2,
-    credentials=credentials,
+    conn=conn_production,
     environment="production"
 )
+
+# Close database connections
+conn_staging.close()
+conn_production.close()
