@@ -1,6 +1,6 @@
 import pandas as pd
 from utils.scraper_single_link import extract_text, clean_text
-from utils.open_ai_api import aplicar_prompt
+from utils.open_ai_api import aplicar_prompt 
 
 #######################Setear variables####################
 output_path = "/Users/leidygomez/ConsiliumBots Dropbox/Leidy Gomez/Explorador_CB/Explorador_Connecticut/E_Escolar/outputs/update/2025_01_19"
