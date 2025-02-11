@@ -14,6 +14,8 @@
 data_path = '/Users/ignaciolepe/Documents/duplicates_check/data'
 # Duplicates list to check
 dup_path = '/Users/ignaciolepe/Documents/duplicates_check/data/resumen_duplicados.xlsx'
+# Output path
+out_path = '/Users/ignaciolepe/Documents/duplicates_check/output'
 ######
 
 ###### Packages
@@ -91,7 +93,7 @@ for idx, row in duplicate_checklist.iterrows():
     duplicate_checklist.loc[idx, 'existe_duplicado_pr'] = existe_duplicado_pr
 
 ###### Save updated checklist
-output_path = os.path.join(data_path, 'resumen_duplicados_actualizado.xlsx')
+output_path = os.path.join(out_path, 'resumen_duplicados_actualizado.xlsx')
 duplicate_checklist.to_excel(output_path, index=False)
 print(f"\nUpdated checklist saved to {output_path}")
 
